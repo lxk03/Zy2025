@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浪漫生日祝福</title>
+    <link rel="preload" href="background-music.mp3" as="audio">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #ffd1ff);
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            padding: 20px;
+        }
+
+        /* 加载进度条 */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #ffd1ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4d6d, #ff9a9e);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* 粉色柔光滤镜 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 182, 193, 0.3), transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 1000px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease;
+            padding: 40px 20px;
+        }
+
+        .container.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 心跳标题 */
+        .heartbeat-title {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            color: #ff4d6d;
+            text-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+            animation: heartbeat 1.5s infinite;
+            line-height: 1.2;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 打字机效果 */
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #ff4d6d;
+            white-space: nowrap;
+            margin: 0 auto;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            font-size: 1.8em;
+            max-width: 90%;
+            margin-bottom: 20px;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ff4d6d }
+        }
+
+        .message {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ff4d6d;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+        }
+
+        .normal-text {
+            font-size: 1.4em;
+            margin: 15px 0;
+            color: #fff;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            line-height: 1.4;
+        }
+
+        /* 倒计时 */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            min-width: 100px;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        .countdown-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #ff4d6d;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .countdown-label {
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+        }
+
+        /* 3D照片轮播 */
+        .photo-carousel {
+            perspective: 1000px;
+            margin: 50px auto;
+            width: 300px;
+            height: 300px;
+            position: relative;
+        }
+
+        .carousel-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        .carousel-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 182, 193, 0.8);
+            backface-visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .carousel-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: #ff4d6d;
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(255, 77, 109, 0.7);
+        }
+
+        /* 按钮样式 */
+        .button {
+            background: linear-gradient(to right, #ff9a9e, #ff4d6d);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 10px;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-block;
+        }
+
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6);
+        }
+
+        /* 分享按钮容器 */
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .share-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            box-shadow: 0 3px 10px rgba(255, 77, 109, 0.3);
+        }
+
+        .share-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        /* 音频控制按钮 */
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(255, 182, 193, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .audio-control:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-control svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* 粒子光点 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .particle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(calc(100vw * var(--x-offset))) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 玫瑰雨 */
+        .rose-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .rose {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #ff4d6d, #ff9a9e);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(45deg);
+            box-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) translateX(calc(100vw * var(--start-x))) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(calc(100vw * var(--end-x))) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 爱心动画 */
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+            font-size: 24px;
+            animation: heartFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        /* 气球 */
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            width: 40px;
+            height: 50px;
+            background: var(--balloon-color);
+            border-radius: 50%;
+            animation: balloonRise 15s linear infinite;
+            z-index: 2;
+        }
+
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes balloonRise {
+            0% {
+                transform: translateX(0) translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateX(var(--move-x)) translateY(-120vh) rotate(360deg);
+            }
+        }
+
+        /* 烟花 */
+        .firework {
+            position: absolute;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .firework-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplode 1s ease-out forwards;
+        }
+
+        @keyframes fireworkExplode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .heartbeat-title {
+                font-size: 2.5em;
+            }
+            .message {
+                font-size: 1.4em;
+            }
+            .normal-text {
+                font-size: 1.2em;
+            }
+            .countdown {
+                gap: 15px;
+            }
+            .countdown-item {
+                min-width: 80px;
+                padding: 15px 10px;
+            }
+            .countdown-number {
+                font-size: 1.8em;
+            }
+            .button {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+            .typewriter {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="heartbeat-title">加载中...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+        <div id="loadingText">0%</div>
+    </div>
+
+    <!-- 音频控制按钮 -->
+    <button class="audio-control" id="audioControl">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+        </svg>
+    </button>
+    
+    <!-- 粒子光点 -->
+    <div class="particles" id="particlesContainer"></div>
+    
+    <!-- 玫瑰雨 -->
+    <div class="rose-rain" id="roseRainContainer"></div>
+
+    <div class="container" id="mainContainer">
+        <h1 class="heartbeat-title" id="birthdayTitle">生日快乐！<span id="recipientName"></span>(⁄ ⁄•⁄ω⁄•⁄ ⁄)</h1>
+        
+        <!-- 倒计时 -->
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">天</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">时</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">分</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="seconds">00</div>
+                <div class="countdown-label">秒</div>
+            </div>
+        </div>
+
+        <!-- 打字机效果祝福语 -->
+        <div class="message typewriter" id="typewriterMessage"></div>
+        
+        <p class="normal-text">愿你充满喜悦，未来的每一天都更加美好(≧▽≦)</p>
+        <p class="normal-text">祝你学业有成，一研为定ฅ^•ﻌ•^ฅ</p>
+        <div class="message">愿你平安喜乐！ฅ(´꒳ `ฅ)ꪆ</div>
+        <p class="normal-text">最后，献上我最诚挚的祝福₍˄•༝•˄₎◞✩︎</p>
+        <div class="message">万事胜意！(⁎˃ᆺ˂)</div>
+        <p class="normal-text" id="additionalMessage">哎呦好像忘记祝你身体健康了，这里补上喵~(ㅇㅅㅇ❀)</p>
+
+        <!-- 3D照片轮播 -->
+        <div class="photo-carousel">
+            <div class="carousel-container" id="carouselContainer">
+                <div class="carousel-item">
+                    <img src="image1.jpg" alt="生日照片1">
+                </div>
+                <div class="carousel-item">
+                    <img src="image2.jpg" alt="生日照片2">
+                </div>
+                <div class="carousel-item">
+                    <img src="image3.jpg" alt="生日照片3">
+                </div>
+            </div>
+            <div class="carousel-nav">
+                <div class="carousel-dot active" data-index="0"></div>
+                <div class="carousel-dot" data-index="1"></div>
+                <div class="carousel-dot" data-index="2"></div>
+            </div>
+        </div>
+
+        <button class="button" onclick="window.location.href='mailto:someone@example.com'">发送祝福</button>
+        
+        <!-- 分享按钮 -->
+        <div class="share-buttons">
+            <button class="share-button" onclick="shareToWechat()">微信分享</button>
+            <button class="share-button" onclick="shareToQQ()">QQ分享</button>
+            <button class="share-button" onclick="copyLink()">复制链接</button>
+        </div>
+    </div>
+
+    <script>
+        // 配置项
+        const CONFIG = {
+            recipientName: "亲爱的郑垚同学", // 收件人姓名
+            birthdayDate: "2024-11-21", // 生日日期 - 修正为2025.11.20
+            messages: [
+                "愿你充满喜悦，未来的每一天都更加美好(≧▽≦)",
+                "祝你学业有成，一研为定ฅ^•ﻌ•^ฅ",
+                "愿你平安喜乐！ฅ(´꒳ `ฅ)ꪆ",
+                "万事胜意！(⁎˃ᆺ˂)",
+                "哎呦好像忘记祝你身体健康了，这里补上喵~(ㅇㅅㅇ❀)"
+            ]
+        };
+
+        // 初始化变量
+        let currentCarouselIndex = 0;
+        let carouselInterval;
+
+        // DOM 元素
+        const elements = {
+            loadingContainer: document.getElementById('loadingContainer'),
+            loadingProgress: document.getElementById('loadingProgress'),
+            loadingText: document.getElementById('loadingText'),
+            mainContainer: document.getElementById('mainContainer'),
+            recipientName: document.getElementById('recipientName'),
+            typewriterMessage: document.getElementById('typewriterMessage'),
+            additionalMessage: document.getElementById('additionalMessage'),
+            countdown: document.getElementById('countdown'),
+            carouselContainer: document.getElementById('carouselContainer'),
+            particlesContainer: document.getElementById('particlesContainer'),
+            roseRainContainer: document.getElementById('roseRainContainer'),
+            audioControl: document.getElementById('audioControl')
+        };
+
+        // 背景音乐
+        const bgMusic = new Audio('background-music.mp3');
+        bgMusic.loop = true;
+        bgMusic.volume = 0.7;
+        
+        // 音频控制
+        let isMuted = false;
+        elements.audioControl.addEventListener('click', function() {
+            isMuted = !isMuted;
+            bgMusic.muted = isMuted;
+            
+            // 更新按钮图标
+            if (isMuted) {
+                elements.audioControl.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M3.63 3.63a.996.996 0 0 0 0 1.41L7.29 9H6c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1.29l4.71 4.71c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L5.05 3.63c-.39-.39-1.02-.39-1.42 0zM18 9c-.56 0-1 .45-1 1v4c0 .55.45 1 1 1s1-.45 1-1v-4c0-.55-.45-1-1-1z"/>
+                    </svg>
+                `;
+            } else {
+                elements.audioControl.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                `;
+            }
+        });
+
+        // 加载进度模拟
+        function simulateLoading() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(completeLoading, 500);
+                }
+                elements.loadingProgress.style.width = progress + '%';
+                elements.loadingText.textContent = Math.round(progress) + '%';
+            }, 200);
+        }
+
+        function completeLoading() {
+            elements.loadingContainer.style.opacity = '0';
+            setTimeout(() => {
+                elements.loadingContainer.style.display = 'none';
+                elements.mainContainer.classList.add('loaded');
+                initializeAllFeatures();
+            }, 500);
+        }
+
+        // 初始化所有功能
+        function initializeAllFeatures() {
+            // 设置收件人姓名
+            elements.recipientName.textContent = CONFIG.recipientName;
+            
+            // 初始化倒计时
+            initializeCountdown();
+            
+            // 初始化打字机效果
+            initializeTypewriter();
+            
+            // 初始化照片轮播
+            initializeCarousel();
+            
+            // 创建粒子效果
+            createParticles();
+            
+            // 创建玫瑰雨
+            createRoseRain();
+            
+            // 创建气球
+            createBalloons();
+            
+            // 添加点击爱心效果
+            document.addEventListener('click', createHeart);
+            
+            // 随机触发烟花
+            setInterval(createRandomFirework, 3000);
+            
+            // 尝试播放背景音乐
+            tryPlayMusic();
+        }
+
+        // 倒计时功能 - 修正版本
+        function initializeCountdown() {
+            function updateCountdown() {
+                const now = new Date();
+                // 修正生日日期处理
+                const birthdayParts = CONFIG.birthdayDate.split('-');
+                const nextBirthday = new Date(
+                    parseInt(birthdayParts[0]),
+                    parseInt(birthdayParts[1]) - 1, // 月份从0开始
+                    parseInt(birthdayParts[2])
+                );
+                
+                // 如果今年生日已过，计算明年生日
+                if (now > nextBirthday) {
+                    nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+                }
+                
+                const diff = nextBirthday - now;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        // 打字机效果
+        function initializeTypewriter() {
+            const messages = [
+                "亲爱的" + CONFIG.recipientName + "(・ω・)ノ",
+                "生日快乐！🎂",
+                "万事胜意！✨"
+            ];
+            let messageIndex = 0;
+            let charIndex = 0;
+            let currentMessage = '';
+            let isDeleting = false;
+            
+            function type() {
+                currentMessage = messages[messageIndex];
+                
+                if (isDeleting) {
+                    elements.typewriterMessage.textContent = currentMessage.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    elements.typewriterMessage.textContent = currentMessage.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+                
+                if (!isDeleting && charIndex === currentMessage.length) {
+                    setTimeout(() => isDeleting = true, 2000);
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    messageIndex = (messageIndex + 1) % messages.length;
+                }
+                
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+            
+            type();
+        }
+
+        // 照片轮播
+        function initializeCarousel() {
+            const items = document.querySelectorAll('.carousel-item');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            function updateCarousel() {
+                items.forEach((item, index) => {
+                    item.style.transform = `rotateY(${(index - currentCarouselIndex) * 60}deg) translateZ(200px)`;
+                    item.style.opacity = index === currentCarouselIndex ? '1' : '0.5';
+                });
+                
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentCarouselIndex);
+                });
+            }
+            
+            // 点击导航点切换
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    currentCarouselIndex = parseInt(this.getAttribute('data-index'));
+                    updateCarousel();
+                    resetCarouselInterval();
+                });
+            });
+            
+            // 自动轮播
+            function nextSlide() {
+                currentCarouselIndex = (currentCarouselIndex + 1) % items.length;
+                updateCarousel();
+            }
+            
+            function resetCarouselInterval() {
+                clearInterval(carouselInterval);
+                carouselInterval = setInterval(nextSlide, 3000);
+            }
+            
+            resetCarouselInterval();
+            updateCarousel();
+        }
+
+        // 创建粒子效果
+        function createParticles() {
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                particle.style.left = Math.random() * 100 + '%';
+                const size = 2 + Math.random() * 3;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                const delay = Math.random() * 20;
+                const duration = 10 + Math.random() * 20;
+                particle.style.setProperty('--x-offset', (Math.random() * 2 - 1).toFixed(2));
+                particle.style.animationDelay = delay + 's';
+                particle.style.animationDuration = duration + 's';
+                
+                elements.particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 创建玫瑰雨
+        function createRoseRain() {
+            const roseCount = 20;
+            
+            for (let i = 0; i < roseCount; i++) {
+                const rose = document.createElement('div');
+                rose.className = 'rose';
+                
+                const startX = Math.random();
+                const endX = startX + (Math.random() * 0.4 - 0.2);
+                rose.style.setProperty('--start-x', startX.toFixed(2));
+                rose.style.setProperty('--end-x', endX.toFixed(2));
+                
+                const size = 20 + Math.random() * 20;
+                rose.style.width = size + 'px';
+                rose.style.height = size + 'px';
+                
+                const delay = Math.random() * 15;
+                const duration = 5 + Math.random() * 10;
+                rose.style.animationDelay = delay + 's';
+                rose.style.animationDuration = duration + 's';
+                
+                elements.roseRainContainer.appendChild(rose);
+            }
+        }
+
+        // 创建气球
+        function createBalloons() {
+            const balloonColors = ['#ff4d6d', '#ff9a9e', '#ffd1ff', '#fad0c4', '#a1c4fd'];
+            const balloonCount = 15;
+            
+            for (let i = 0; i < balloonCount; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                balloon.style.setProperty('--balloon-color', balloonColors[Math.floor(Math.random() * balloonColors.length)]);
+                balloon.style.setProperty('--move-x', (Math.random() * 100 - 50) + 'px');
+                balloon.style.left = Math.random() * 100 + '%';
+                balloon.style.animationDelay = Math.random() * 15 + 's';
+                
+                document.body.appendChild(balloon);
+            }
+        }
+
+        // 点击创建爱心
+        function createHeart(e) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = '❤';
+            heart.style.left = e.clientX + 'px';
+            heart.style.top = e.clientY + 'px';
+            heart.style.color = `hsl(${Math.random() * 360}, 100%, 65%)`;
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 1500);
+        }
+
+        // 创建随机烟花
+        function createRandomFirework() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            createFirework(x, y);
+        }
+
+        function createFirework(x, y) {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.left = x + 'px';
+            firework.style.top = y + 'px';
+            
+            const colors = ['#ff4d6d', '#ff9a9e', '#ffd1ff', '#a1c4fd', '#fad0c4'];
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (i / particleCount) * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                particle.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                firework.appendChild(particle);
+            }
+            
+            document.body.appendChild(firework);
+            
+            setTimeout(() => {
+                firework.remove();
+            }, 1000);
+        }
+
+        // 分享功能
+        function shareToWechat() {
+            alert('请使用微信扫描屏幕二维码分享');
+            // 实际应用中这里可以生成二维码
+        }
+
+        function shareToQQ() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent('生日祝福页面');
+            window.open(`http://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}`, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+
+        // 尝试播放音乐
+        function tryPlayMusic() {
+            try {
+                bgMusic.play().catch(e => {
+                    console.log('自动播放被阻止，需要用户交互');
+                    const playMusic = () => {
+                        bgMusic.play();
+                        document.removeEventListener('click', playMusic);
+                        document.removeEventListener('touchstart', playMusic);
+                    };
+                    document.addEventListener('click', playMusic);
+                    document.addEventListener('touchstart', playMusic);
+                });
+            } catch (e) {
+                console.log('音频播放错误:', e);
+            }
+        }
+
+        // 启动加载
+        simulateLoading();
+    </script>
+</body>
+</html>
